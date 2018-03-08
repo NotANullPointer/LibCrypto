@@ -1,7 +1,5 @@
 package me.notanullpointer.libcrypto.utils;
 
-import org.omg.CORBA.DynAnyPackage.Invalid;
-
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
