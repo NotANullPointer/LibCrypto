@@ -13,6 +13,16 @@ import java.security.spec.X509EncodedKeySpec;
 
 public class Converter {
 
+    private static KeyFactory keyFactory;
+
+    static {
+        try {
+            keyFactory = KeyFactory.getInstance("RSA");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("RSA algorithm not supported", e);
+        }
+    }
+
     public static String byteArrayToString(byte[] in) {
         return DatatypeConverter.printHexBinary(in);
     }
@@ -39,15 +49,22 @@ public class Converter {
         return in.getEncoded();
     }
 
+    public static PublicKey byteArrayToPublicKey(byte[] publicKey) throws InvalidKeySpecException {
+        return keyFactory.generatePublic(new X509EncodedKeySpec(publicKey));
+    }
+
+    public static PrivateKey byteArrayToPrivateKey(byte[] privateKey) throws InvalidKeySpecException {
+        return keyFactory.generatePrivate(new PKCS8EncodedKeySpec(privateKey));
+    }
+
+    public static KeyPair byteArrayToKeyPair(byte[] publicKey, byte[] privateKey) throws InvalidKeySpecException {
+        return byteArrayToKeyPair(new byte[][]{publicKey, privateKey});
+    }
+
     public static KeyPair byteArrayToKeyPair(byte[][] in) throws InvalidKeySpecException {
-        KeyFactory kf;
-        try {
-            kf = KeyFactory.getInstance("RSA");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("RSA algorithm not supported", e);
-        }
-        return new KeyPair(kf.generatePublic(new X509EncodedKeySpec(in[0])),
-                kf.generatePrivate(new PKCS8EncodedKeySpec(in[1])));
+        if(in.length < 2)
+            throw new InvalidParameterException("Invalid input");
+        return new KeyPair(byteArrayToPublicKey(in[0]), byteArrayToPrivateKey(in[1]));
     }
 
     public static byte[][] keyPairToByteArray(KeyPair in) {
