@@ -8,14 +8,24 @@ public class MD5 {
 
     private static MD5 instance;
     private Hash core;
+    private static boolean initialized;
 
     private MD5() {
         instance = this;
+        initialized = true;
         try {
             this.core = new Hash("MD5");
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("Algorithm not supported", e.getCause());
         }
+    }
+
+    public static boolean isInitialized() {
+        return initialized;
+    }
+
+    public static void initialize() {
+        new MD5();
     }
 
     public static byte[] hash(byte[] in) {
